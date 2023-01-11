@@ -1,0 +1,48 @@
+<html>
+<head>
+  <title>The Cocktail Codex</title>
+  <link rel="icon" type="image/png" href="icon.png">
+</head>
+<body>
+  <h1>The Cocktail Codex</h1>
+  <h2">Randomly generated, expertly crafted"</h2>
+
+  <div id="alcohol-buttons">
+    <button onclick="generateCocktail('vodka')">Vodka</button>
+    <button onclick="generateCocktail('rum')">Rum</button>
+    <button onclick="generateCocktail('gin')">Gin</button>
+    <button onclick="generateCocktail('tequila')">Tequila</button>
+  </div>
+  <div id="cocktail-recipe">
+    <!-- This div will be populated with the cocktail recipe -->
+  </div>
+  <div id="cocktail-image">
+    <!-- This div will be populated with the cocktail image -->
+  </div>
+  <script>
+    function generateCocktail(baseAlcohol) {
+      // Request a cocktail recipe from the OpenAI API
+      const recipeResponse = fetch(`https://api.openai.com/v1/text-davinci-003/generate?>prompt=Cocktail%20recipe%20with%20${baseAlcohol}&max_tokens=1024`);
+      recipeResponse
+        .then(response => response.json())
+        .then(recipe => {
+          // Extract the cocktail name and instructions from the recipe
+          const cocktailName = recipe.data.slice(0, recipe.data.indexOf('\n'));
+          const instructions = recipe.data.slice(recipe.data.indexOf('\n'));
+          // Display the cocktail name and instructions in the "cocktail-recipe" div
+          const recipeDiv = document.getElementById('cocktail-recipe');
+          recipeDiv.innerHTML = `<h3>${cocktailName}</h3><p>${instructions}</p>`;
+          // Request a cocktail image from the DALL-E API
+          const imageResponse = fetch(`https://api.openai.com/v1/images/generate?model=image-alpha-001&prompt=$>{cocktailName}`);
+          imageResponse
+            .then(response => response.json())
+            .then(image => {
+              // Display the cocktail image in the "cocktail-image" div
+              const imageDiv = document.getElementById('cocktail-image');
+              imageDiv.innerHTML = `<img src="${image.data.url}" alt="${cocktailName}">`;
+            });
+        });
+    }
+  </script>
+</body>
+</html>
